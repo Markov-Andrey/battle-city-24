@@ -1,6 +1,7 @@
 import pygame
 import sys
-from src.tank import Tank
+from src.lightTank import LightTank
+from src.heavyTank import HeavyTank
 
 # Инициализация Pygame
 pygame.init()
@@ -13,10 +14,16 @@ MAP_WIDTH, MAP_HEIGHT = GRID_WIDTH * BLOCK_SIZE, GRID_HEIGHT * BLOCK_SIZE
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Battle City")
 
-# Создание объекта танка
-player_tank = Tank(1 * BLOCK_SIZE, 1 * BLOCK_SIZE, BLOCK_SIZE, GRID_WIDTH, GRID_HEIGHT)
+# Создание объекта танка игрока
+player_tank = LightTank(500, 500, 'player')
+
+# Создание объекта танка-мишени
+enemy_tank = HeavyTank(200, 200)
+
+# Группа для всех спрайтов
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player_tank)
+all_sprites.add(enemy_tank)
 
 # Основной игровой цикл
 clock = pygame.time.Clock()
