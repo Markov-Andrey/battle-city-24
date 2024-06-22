@@ -1,7 +1,7 @@
 import pygame
 import sys
 from src.lightTank import LightTank
-from src.heavyTank import HeavyTank
+from src.heavyTank import EnemyTank
 
 # Инициализация Pygame
 pygame.init()
@@ -15,10 +15,12 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Battle City")
 
 # Создание объекта танка игрока
-player_tank = LightTank(500, 500, 'player')
+player_tank = LightTank(500, 500)
+player_tank.load_images()  # Загрузка изображений для танка игрока
 
 # Создание объекта танка-мишени
-enemy_tank = HeavyTank(200, 200)
+enemy_tank = EnemyTank(200, 200)
+enemy_tank.load_images()  # Загрузка изображений для танка врага
 
 # Группа для всех спрайтов
 all_sprites = pygame.sprite.Group()
@@ -40,7 +42,7 @@ while True:
     # Обновление игровых объектов
     all_sprites.update()
 
-    # Обновление смещения камеры
+    # Обновление смещения камеры (можно оставить как в вашем примере)
     camera_x = player_tank.rect.x - WIDTH // 2
     camera_y = player_tank.rect.y - HEIGHT // 2
 
@@ -53,7 +55,8 @@ while True:
 
     # Отрисовка всех спрайтов с учетом смещения камеры
     for sprite in all_sprites:
-        screen.blit(sprite.image, (sprite.rect.x - camera_x, sprite.rect.y - camera_y))
+        if sprite.image is not None:  # Проверка наличия изображения
+            screen.blit(sprite.image, (sprite.rect.x - camera_x, sprite.rect.y - camera_y))
 
     pygame.display.flip()  # Обновление экрана
     clock.tick(60)  # Ограничение FPS до 60
