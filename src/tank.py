@@ -1,48 +1,53 @@
+# tank.py
 import pygame
 
 class Tank(pygame.sprite.Sprite):
-    block_size = 50  # Размер блока
-
     def __init__(self, x, y, image_paths, health, speed):
         super().__init__()
         self.image_paths = image_paths
-        self.images = None
+        self.images = self.load_images()  # Загружаем изображения танка
         self.image_index = 0
-        self.load_images()  # Загружаем изображения танка
         self.image = self.images[self.image_index]  # Устанавливаем начальное изображение
-        self.rect = self.image.get_rect()  # Получаем прямоугольник изображения
-        self.rect.topleft = (x, y)  # Устанавливаем начальное положение танка
-        self.speed = speed  # Одна скорость для всех направлений
-        self.grid_width = 13  # Размеры сетки по умолчанию
-        self.grid_height = 13
+        self.rect = self.image.get_rect(topleft=(x, y))  # Получаем прямоугольник изображения и устанавливаем его позицию
+        self.speed = speed  # Скорость танка
         self.direction = 'up'  # Начальное направление танка
         self.is_moving = False  # Флаг движения
         self.health = health  # Здоровье танка
-        self.is_player = False  # По умолчанию танк не является игроком
+
+    def check_collision(self, blocks):
+        block_collisions = pygame.sprite.spritecollide(self, blocks, False)
+        for block in block_collisions:
+            if pygame.sprite.collide_rect(self, block):
+                if self.direction == 'left':
+                    self.rect.left = block.rect.right
+                elif self.direction == 'right':
+                    self.rect.right = block.rect.left
+                elif self.direction == 'up':
+                    self.rect.top = block.rect.bottom
+                elif self.direction == 'down':
+                    self.rect.bottom = block.rect.top
+
+                self.is_moving = False
 
     def load_images(self):
-        # Загрузка изображений по указанным путям
-        self.images = [pygame.transform.scale(pygame.image.load(path).convert_alpha(),
-                                             (self.block_size, self.block_size)) for path in self.image_paths]
+        return [pygame.transform.scale(pygame.image.load(path).convert_alpha(), (50, 50)) for path in self.image_paths]
 
     def update(self):
-        # Метод обновления состояния танка
         if self.is_moving:
             self.image_index = (self.image_index + 1) % len(self.images)
             self.image = self.images[self.image_index]
-            self.change_direction(self.direction)  # Поворачиваем изображение в текущее направление
-        else:
-            self.image = self.images[0]
+            self.change_direction(self.direction)  # Изменяем направление изображения в соответствии с направлением танка
 
     def move(self, direction):
-        # Метод для перемещения танка по заданному направлению
+        original_rect = self.rect.copy()  # Создаем копию текущего прямоугольника танка
+
         if direction == 'left':
             new_x = self.rect.x - self.speed
             if new_x >= 0:
                 self.rect.x = new_x
         elif direction == 'right':
             new_x = self.rect.x + self.speed
-            if new_x < self.grid_width * self.block_size - self.rect.width:  # учитываем ширину танка
+            if new_x + self.rect.width <= 800:
                 self.rect.x = new_x
         elif direction == 'up':
             new_y = self.rect.y - self.speed
@@ -50,13 +55,13 @@ class Tank(pygame.sprite.Sprite):
                 self.rect.y = new_y
         elif direction == 'down':
             new_y = self.rect.y + self.speed
-            if new_y < self.grid_height * self.block_size - self.rect.height:  # учитываем высоту танка
+            if new_y + self.rect.height <= 800:
                 self.rect.y = new_y
+
         self.is_moving = True
-        self.direction = direction  # Обновляем направление танка
+        self.direction = direction
 
     def change_direction(self, direction):
-        # Метод для изменения направления и поворота изображения
         if direction == 'left':
             self.image = pygame.transform.rotate(self.images[self.image_index], 90)
         elif direction == 'right':

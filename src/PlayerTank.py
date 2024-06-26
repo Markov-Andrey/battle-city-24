@@ -2,7 +2,8 @@ import pygame
 
 from src.tank import Tank
 
-class LightTank(Tank):
+
+class PlayerTank(Tank):
     def __init__(self, x, y):
         image_paths = ['assets/tanks/light/tank1.png', 'assets/tanks/light/tank2.png']  # Пример пути к изображению
         super().__init__(x, y, image_paths, health=100, speed=5)

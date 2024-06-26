@@ -1,13 +1,13 @@
 import pygame
 import sys
-from src.lightTank import LightTank
-from src.heavyTank import EnemyTank
+from src.PlayerTank import PlayerTank
+from src.Map import Map  # Подключаем новый класс для генерации карты
 
 # Инициализация Pygame
 pygame.init()
 
 # Настройка окна
-WIDTH, HEIGHT = 600, 600
+WIDTH, HEIGHT = 800, 800
 BLOCK_SIZE = 50  # Размер блока
 GRID_WIDTH, GRID_HEIGHT = 13, 13
 MAP_WIDTH, MAP_HEIGHT = GRID_WIDTH * BLOCK_SIZE, GRID_HEIGHT * BLOCK_SIZE
@@ -15,17 +15,21 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Battle City")
 
 # Создание объекта танка игрока
-player_tank = LightTank(500, 500)
+player_tank = PlayerTank(500, 500)
 player_tank.load_images()  # Загрузка изображений для танка игрока
-
-# Создание объекта танка-мишени
-enemy_tank = EnemyTank(200, 200)
-enemy_tank.load_images()  # Загрузка изображений для танка врага
 
 # Группа для всех спрайтов
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player_tank)
-all_sprites.add(enemy_tank)
+
+# Создание экземпляра класса Map для генерации карты
+map_generator = Map(BLOCK_SIZE)
+
+# Генерация карты и добавление блоков в группы
+blocks, all_sprites = map_generator.generate_blocks()
+
+# Добавление танка игрока в группу всех спрайтов
+all_sprites.add(player_tank)
 
 # Основной игровой цикл
 clock = pygame.time.Clock()
@@ -41,6 +45,7 @@ while True:
 
     # Обновление игровых объектов
     all_sprites.update()
+    player_tank.check_collision(blocks)
 
     # Обновление смещения камеры (можно оставить как в вашем примере)
     camera_x = player_tank.rect.x - WIDTH // 2
